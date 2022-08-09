@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">kanye-rest</string>
+    <string name="background">Background</string>
+    <string name="KanYEWest">- Ye</string>
 </resources>
