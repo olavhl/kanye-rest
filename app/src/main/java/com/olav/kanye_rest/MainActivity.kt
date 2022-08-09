@@ -1,7 +1,6 @@
 package com.olav.kanye_rest
 
 import android.os.Bundle
-import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
@@ -18,13 +17,13 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class MainActivity : AppCompatActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         val viewModel = ViewModelProvider(this)[KanyeViewModel::class.java]
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         viewModel.loadQuote()
 
+        // Connecting tvQuote to Stateflow
         lifecycleScope.launchWhenCreated {
             viewModel.stateFlow.collectLatest {
                 if (it != null) {
@@ -33,6 +32,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // Calling function once again to show multiple quotes
         findViewById<TextView>(R.id.tvQuote).setOnClickListener { viewModel.loadQuote() }
     }
 }
@@ -47,6 +47,7 @@ class KanyeViewModel: ViewModel() {
     val stateFlow = _stateFlow.asStateFlow()
 
     fun loadQuote() {
+        // Clone() is to be able to reuse a Call
         call.clone().enqueue(object: Callback<KanyeQuote> {
             override fun onResponse(call: Call<KanyeQuote>, response: Response<KanyeQuote>) {
                 if (response.isSuccessful) {
