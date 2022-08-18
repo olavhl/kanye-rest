@@ -3,18 +3,10 @@ package com.olav.kanye_rest
 import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.olav.kanye_rest.model.KanyeQuote
-import com.olav.kanye_rest.retrofit.KanyeApi
-import com.olav.kanye_rest.retrofit.KanyeApiClient
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import com.olav.kanye_rest.viewmodel.KanyeViewModel
 import kotlinx.coroutines.flow.collectLatest
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,30 +27,4 @@ class MainActivity : AppCompatActivity() {
         // Calling function once again to show multiple quotes
         findViewById<TextView>(R.id.tvQuote).setOnClickListener { viewModel.loadQuote() }
     }
-}
-
-class KanyeViewModel: ViewModel() {
-    // API
-    private val kanyeApiClient = KanyeApiClient.buildService(KanyeApi::class.java)
-    private val call = kanyeApiClient.getQuote()
-
-    // State management
-    private var _stateFlow = MutableStateFlow<KanyeQuote?>(null)
-    val stateFlow = _stateFlow.asStateFlow()
-
-    fun loadQuote() {
-        // Clone() is to be able to reuse a Call
-        call.clone().enqueue(object: Callback<KanyeQuote> {
-            override fun onResponse(call: Call<KanyeQuote>, response: Response<KanyeQuote>) {
-                if (response.isSuccessful) {
-                    _stateFlow.value = response.body()
-                }
-            }
-
-            override fun onFailure(call: Call<KanyeQuote>, t: Throwable) {
-                print("Fail")
-            }
-        })
-    }
-
 }
