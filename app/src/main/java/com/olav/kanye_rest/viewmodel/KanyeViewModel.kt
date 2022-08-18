@@ -1,37 +1,41 @@
 package com.olav.kanye_rest.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.olav.kanye_rest.model.KanyeQuote
 import com.olav.kanye_rest.retrofit.KanyeApi
 import com.olav.kanye_rest.retrofit.KanyeApiClient
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.lang.Exception
+import java.security.spec.ECParameterSpec
 
-class KanyeViewModel: ViewModel() {
-    // API
-    private val kanyeApiClient = KanyeApiClient.buildService(KanyeApi::class.java)
-    private val call = kanyeApiClient.getQuote()
-
+class KanyeViewModel(
+    private val fetchQuotes: FetchQuotes
+): ViewModel() {
     // State management
     private var _stateFlow = MutableStateFlow<KanyeQuote?>(null)
     val stateFlow = _stateFlow.asStateFlow()
 
     fun loadQuote() {
-        // Clone() is to be able to reuse a Call
-        call.clone().enqueue(object: Callback<KanyeQuote> {
-            override fun onResponse(call: Call<KanyeQuote>, response: Response<KanyeQuote>) {
-                if (response.isSuccessful) {
-                    _stateFlow.value = response.body()
-                }
+        viewModelScope.launch {
+            _stateFlow.value = withContext(Dispatchers.IO) {
+                fetchQuotes()
             }
-
-            override fun onFailure(call: Call<KanyeQuote>, t: Throwable) {
-                print("Failed to fetch API.")
-            }
-        })
+        }
     }
+}
 
+fun interface FetchQuotes {
+    suspend operator fun invoke(): KanyeQuote?
+}
+
+fun KanyeApi.fetchQuotes() = FetchQuotes {
+    getQuote().body() ?: throw Exception("Nope")
 }
