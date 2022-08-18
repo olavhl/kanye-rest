@@ -3,12 +3,11 @@ package com.olav.kanye_rest
 import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.olav.kanye_rest.retrofit.KanyeApi
 import com.olav.kanye_rest.retrofit.KanyeApiClient
 import com.olav.kanye_rest.viewmodel.KanyeViewModel
-import com.olav.kanye_rest.viewmodel.fetchQuotes
+import com.olav.kanye_rest.http.fetchQuotes
 import kotlinx.coroutines.flow.collectLatest
 
 class MainActivity : AppCompatActivity() {
